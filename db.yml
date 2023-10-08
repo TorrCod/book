@@ -1,0 +1,13 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: book-database
+    environment:
+      POSTGRES_USER: torrrrzz
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: books
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql

@@ -1,0 +1,38 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: book-database
+    environment:
+      POSTGRES_USER: torrrrzz
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: books
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  backend:
+    build:
+      context: ./fastapi
+      dockerfile: Dockerfile  # Specify the Dockerfile to use
+    container_name: book-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://torrrrzz:password123@postgres:5432/books
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./book
+      dockerfile: Dockerfile
+    volumes:
+      - ./book:/app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+    depends_on:
+      - backend
