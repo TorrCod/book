@@ -5,6 +5,7 @@ import psycopg2
 from typing import List
 import os
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -17,7 +18,22 @@ print(db_url)
 if db_url is None:
     raise Exception("DATABASE_URL environment variable is not set")
 
-conn = psycopg2.connect(db_url)
+max_retries = 5
+retry_delay = 3
+retry_count = 0
+conn = None  # Initialize 'conn' outside the loop
+
+while retry_count < max_retries:
+    try:
+        conn = psycopg2.connect(db_url)
+        break  # If connection successful, break out of the loop
+    except Exception as e:
+        print(f"Connection attempt {retry_count + 1} failed. Retrying in {retry_delay} seconds...")
+        retry_count += 1
+        time.sleep(retry_delay)
+else:
+    # If all retries failed, raise an error
+    raise Exception("Failed to establish a database connection after multiple attempts")
 
 app = FastAPI()
 
